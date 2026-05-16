@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "author": "Mini Retro Dell XP - ST7789",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-nano", "id": "nano",       "top": 200,  "left": 0,    "attrs": {} },
+    { "type": "wokwi-ili9341",      "id": "tft1",       "top": 0,    "left": -250, "attrs": {} },
+    { "type": "wokwi-pushbutton",   "id": "btn_toggle", "top": 200,  "left": -120, "attrs": { "color": "green"  } },
+    { "type": "wokwi-pushbutton",   "id": "btn_up",     "top": 300,  "left": 220,  "attrs": { "color": "blue"   } },
+    { "type": "wokwi-pushbutton",   "id": "btn_down",   "top": 380,  "left": 220,  "attrs": { "color": "blue"   } },
+    { "type": "wokwi-pushbutton",   "id": "btn_left",   "top": 340,  "left": 160,  "attrs": { "color": "blue"   } },
+    { "type": "wokwi-pushbutton",   "id": "btn_right",  "top": 340,  "left": 280,  "attrs": { "color": "blue"   } },
+    { "type": "wokwi-pushbutton",   "id": "btn_enter",  "top": 300,  "left": 380,  "attrs": { "color": "green"  } },
+    { "type": "wokwi-pushbutton",   "id": "btn_esc",    "top": 380,  "left": 380,  "attrs": { "color": "red"    } },
+    { "type": "wokwi-buzzer",       "id": "buz1",       "top": 200,  "left": 220,  "attrs": {} }
+  ],
+  "connections": [
+    ["tft1:VCC",          "nano:3.3V",   "red",    []],
+    ["tft1:GND",          "nano:GND.1",  "black",  []],
+    ["tft1:LED",          "nano:3.3V",   "orange", []],
+    ["tft1:SCK",          "nano:13",     "yellow", []],
+    ["tft1:MOSI",         "nano:11",     "blue",   []],
+    ["tft1:MISO",         "nano:12",     "white",  []],
+    ["tft1:RST",          "nano:8",      "orange", []],
+    ["tft1:D/C",          "nano:9",      "green",  []],
+    ["tft1:CS",           "nano:10",     "purple", []],
+
+    ["btn_toggle:1.l",    "nano:2",      "green",  []],
+    ["btn_toggle:2.l",    "nano:GND.1",  "black",  []],
+
+    ["btn_up:1.l",        "nano:3",      "blue",   []],
+    ["btn_up:2.l",        "nano:GND.1",  "black",  []],
+
+    ["btn_down:1.l",      "nano:4",      "blue",   []],
+    ["btn_down:2.l",      "nano:GND.1",  "black",  []],
+
+    ["btn_left:1.l",      "nano:6",      "blue",   []],
+    ["btn_left:2.l",      "nano:GND.1",  "black",  []],
+
+    ["btn_right:1.l",     "nano:7",      "blue",   []],
+    ["btn_right:2.l",     "nano:GND.1",  "black",  []],
+
+    ["btn_enter:1.l",     "nano:A0",     "green",  []],
+    ["btn_enter:2.l",     "nano:GND.1",  "black",  []],
+
+    ["btn_esc:1.l",       "nano:A1",     "red",    []],
+    ["btn_esc:2.l",       "nano:GND.1",  "black",  []],
+
+    ["buz1:1",            "nano:5",      "red",    []],
+    ["buz1:2",            "nano:GND.2",  "black",  []]
+  ]
+}
