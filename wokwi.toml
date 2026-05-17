@@ -1,4 +1,4 @@
 [wokwi]
 version = 1
-firmware = 'build/arduino.avr.nano/sketch_st7789.ino.hex'
-elf = 'build/arduino.avr.nano/sketch_st7789.ino.elf'
+firmware = '.pio/build/nanoatmega328/firmware.hex'
+elf = '.pio/build/nanoatmega328/firmware.elf'
