@@ -12,7 +12,11 @@
     { "type": "wokwi-pushbutton",   "id": "btn_right",  "top": 340,  "left": 280,  "attrs": { "color": "blue"   } },
     { "type": "wokwi-pushbutton",   "id": "btn_enter",  "top": 300,  "left": 380,  "attrs": { "color": "green"  } },
     { "type": "wokwi-pushbutton",   "id": "btn_esc",    "top": 380,  "left": 380,  "attrs": { "color": "red"    } },
-    { "type": "wokwi-buzzer",       "id": "buz1",       "top": 200,  "left": 220,  "attrs": {} }
+    { "type": "wokwi-buzzer",       "id": "buz1",       "top": 200,  "left": 220,  "attrs": {} },
+    { "type": "wokwi-led",          "id": "led_power",  "top": 200,  "left": 400,  "attrs": { "color": "green"  } },
+    { "type": "wokwi-led",          "id": "led_hdd",    "top": 260,  "left": 400,  "attrs": { "color": "red"    } },
+    { "type": "wokwi-resistor",     "id": "res_power",  "top": 204,  "left": 330,  "attrs": { "value": "220"   } },
+    { "type": "wokwi-resistor",     "id": "res_hdd",    "top": 264,  "left": 330,  "attrs": { "value": "220"   } }
   ],
   "connections": [
     ["tft1:VCC",          "nano:3.3V",   "red",    []],
@@ -47,6 +51,14 @@
     ["btn_esc:2.l",       "nano:GND.1",  "black",  []],
 
     ["buz1:1",            "nano:5",      "red",    []],
-    ["buz1:2",            "nano:GND.2",  "black",  []]
+    ["buz1:2",            "nano:GND.2",  "black",  []],
+
+    ["nano:A2",           "res_power:1", "green",  []],
+    ["res_power:2",       "led_power:A", "green",  []],
+    ["led_power:C",       "nano:GND.1",  "black",  []],
+
+    ["nano:A3",           "res_hdd:1",   "red",    []],
+    ["res_hdd:2",         "led_hdd:A",   "red",    []],
+    ["led_hdd:C",         "nano:GND.1",  "black",  []]
   ]
 }
