@@ -1,26 +1,31 @@
 #include <Adafruit_GFX.h>
-#include <Adafruit_ILI9341.h>
+#include <Adafruit_ST7789.h>
 #include <SPI.h>
 #include <avr/pgmspace.h>
 
 #define TFT_CS    10
 #define TFT_DC     9
 #define TFT_RST    8
-#define BTN_PIN    2
-#define BTN_UP     3
+#define BTN_UP     2
 #define BTN_DOWN   4
-#define BTN_LEFT   6
-#define BTN_RIGHT  7
-#define BTN_ENTER  A0
-#define BTN_ESC    A1
-#define BUZZER_PIN 5
-#define LED_POWER  A2
-#define LED_HDD    A3
+#define BTN_LEFT   A4
+#define BTN_RIGHT  A5
+#define BTN_ENTER  A6  // analog-only no Nano: pull-up externo 10k para VCC
+#define BTN_ESC    A7  // analog-only no Nano: pull-up externo 10k para VCC
+#define BUZZER_PIN A3
+#define LED_POWER  5
+#define LED_HDD    6
 
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
+Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
+
+// A6 e A7 nao suportam digitalRead/INPUT_PULLUP no Nano
+bool rB(uint8_t p) {
+  if (p == A6 || p == A7) return analogRead(p) < 100;
+  return digitalRead(p) == LOW;
+}
 
 bool ligado = false;
-bool prevUp = false, prevDown = false, prevToggle = false, prevEsc = false;
+bool prevUp = false, prevDown = false, prevEsc = false;
 bool prevLeft = false, prevRight = false, prevEnter = false;
 unsigned long ultimaNavMs = 0;
 #define NAV_COOLDOWN_MS 250
@@ -305,16 +310,14 @@ bool lerComando(char* buf, int maxlen) {
 // ---- Setup ----
 void setup() {
   Serial.begin(9600);
-  tft.begin();
-  tft.setRotation(0);
+  tft.init(240, 240);
+  tft.setRotation(2);
   tft.fillScreen(0x0000);
-  pinMode(BTN_PIN,   INPUT_PULLUP);
   pinMode(BTN_UP,    INPUT_PULLUP);
   pinMode(BTN_DOWN,  INPUT_PULLUP);
   pinMode(BTN_LEFT,  INPUT_PULLUP);
   pinMode(BTN_RIGHT, INPUT_PULLUP);
-  pinMode(BTN_ENTER, INPUT_PULLUP);
-  pinMode(BTN_ESC,   INPUT_PULLUP);
+  // BTN_ENTER=A6 e BTN_ESC=A7: analog-only, sem pinMode, lidos via analogRead
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_POWER, OUTPUT);
   pinMode(LED_HDD,   OUTPUT);
@@ -327,15 +330,13 @@ void setup() {
 void loop() {
   atualizarRelogio();
 
-  bool nowToggle = (digitalRead(BTN_PIN)   == LOW);
-  bool nowEsc    = (digitalRead(BTN_ESC)   == LOW);
+  bool nowEsc    = rB(BTN_ESC);
   bool nowDown   = (digitalRead(BTN_DOWN)  == LOW);
   bool nowUp     = (digitalRead(BTN_UP)    == LOW);
   bool nowLeft   = (digitalRead(BTN_LEFT)  == LOW);
   bool nowRight  = (digitalRead(BTN_RIGHT) == LOW);
-  bool nowEnter  = (digitalRead(BTN_ENTER) == LOW);
+  bool nowEnter  = rB(BTN_ENTER);
 
-  if (nowToggle && !prevToggle) { playMenuBeep(); alternar(); }
   if (nowEsc    && !prevEsc)    { playMenuBeep(); desktop(); prevEsc = nowEsc; return; }
 
   if (millis() - ultimaNavMs >= NAV_COOLDOWN_MS) {
@@ -345,7 +346,6 @@ void loop() {
 
   if (nowEnter && !prevEnter && ligado && appSel >= 0) { abrirApp(appSel); return; }
 
-  prevToggle = nowToggle;
   prevEsc    = nowEsc;
   prevDown   = nowDown;
   prevUp     = nowUp;
@@ -562,11 +562,11 @@ void rodarPong() {
   pongMenuTela();
 
   while (true) {
-    if (digitalRead(BTN_ESC) == LOW) { delay(200); return; }
+    if (rB(BTN_ESC)) { delay(200); return; }
 
     switch (pongEstado) {
       case PE_MENU:
-        if (digitalRead(BTN_ENTER) == LOW) {
+        if (rB(BTN_ENTER)) {
           delay(200);
           pongReset(); pongPlacar(); pongTela();
           pongEstado = PE_JOGANDO;
@@ -592,7 +592,7 @@ void rodarPong() {
         break;
 
       case PE_FIM:
-        if (digitalRead(BTN_ENTER) == LOW) {
+        if (rB(BTN_ENTER)) {
           delay(200);
           pongReset(); pongPlacar(); pongTela();
           pongEstado = PE_JOGANDO;
@@ -616,7 +616,7 @@ void rodarMyPC() {
   tft.setCursor(8,  98); tft.print(F(" Jogo PONG"));
   tft.setTextColor(0x4208);
   tft.setCursor(68, 150); tft.print(F("ESC sair"));
-  while (digitalRead(BTN_ESC) != LOW);
+  while (!rB(BTN_ESC));
   delay(150);
 }
 
@@ -810,8 +810,8 @@ void rodarTerminal() {
     bool nD  = (digitalRead(BTN_DOWN)  == LOW);
     bool nL  = (digitalRead(BTN_LEFT)  == LOW);
     bool nR  = (digitalRead(BTN_RIGHT) == LOW);
-    bool nEn = (digitalRead(BTN_ENTER) == LOW);
-    bool nEs = (digitalRead(BTN_ESC)   == LOW);
+    bool nEn = rB(BTN_ENTER);
+    bool nEs = rB(BTN_ESC);
 
     if (nEs && !lpEs) { delay(150); return; }
 
@@ -862,7 +862,6 @@ void boot() {
   tft.setTextSize(1);
   tft.setCursor(30, 80); tft.print(F("XP  Professional"));
   tft.drawRoundRect(25, 140, 190, 14, 3, 0x8410);
-  log(F("Carregando drivers..."));
   for (int v = 0; v < 3; v++) {
     for (int x = 0; x <= 180; x += 5) {
       tft.fillRect(27, 142, 186, 10, 0x0000);
